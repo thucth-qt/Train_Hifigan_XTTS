@@ -162,5 +162,4 @@ cython_debug/
 outputs/*
 Ljspeech_latents/*
 LJSpeech-1.1/*
-TTS/*
 XTTS-v2/*

@@ -36,7 +36,7 @@ class GPTHifiganTrainer:
 
 if __name__ == "__main__":
     config = GPTHifiganConfig(
-        batch_size=64,
+        batch_size=48,
         eval_batch_size=2,
         num_loader_workers=4,
         num_eval_loader_workers=4,
@@ -56,11 +56,11 @@ if __name__ == "__main__":
         lr_disc=1e-4,
         use_stft_loss=True,
         use_l1_spec_loss=True,
-        data_path="Ljspeech_latents/wavs",
-        mel_path="Ljspeech_latents/gpt_latents",
-        spk_path ="Ljspeech_latents/speaker_embeddings",
+        data_path="/data/thucth/voice/viVoice_latents/wavs",
+        mel_path="/data/thucth/voice/viVoice_latents/gpt_latents",
+        spk_path ="/data/thucth/voice/viVoice_latents/speaker_embeddings",
         output_path="outputs",
-        pretrain_path="XTTS-v2/model.pth",
+        pretrain_path="/data/weights/viXTTS/model.pth",
         train_spk_encoder=False,
     )
 

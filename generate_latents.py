@@ -97,37 +97,69 @@ class GPTDecoder:
 
 if __name__ == "__main__":
     audio_config = XttsAudioConfig(sample_rate=22050, dvae_sample_rate=22050, output_sample_rate=24000)
+
+    DVAE_CHECKPOINT = "/data/weights/viXTTS/dvae.pth"
+    MEL_NORM_FILE = "/data/weights/viXTTS/mel_stats.pth"
+    TOKENIZER_FILE = "/data/weights/viXTTS/vocab.json"
+    XTTS_CHECKPOINT = "/data/weights/viXTTS/model.pth"
+
     model_args = GPTArgs(
-        max_conditioning_length=132300,  # 6 secs
-        min_conditioning_length=66150,  # 3 secs
-        debug_loading_failures=False,
-        max_wav_length=255995,  # ~11.6 seconds
+        enable_redaction=False,
+        kv_cache=True,
+        
+        min_conditioning_length=66150,
+        max_conditioning_length=132300,
+        max_wav_length=255995,
         max_text_length=200,
-        mel_norm_file="XTTS-v2/mel_stats.pth",
-        dvae_checkpoint="XTTS-v2/dvae.pth",
-        xtts_checkpoint="XTTS-v2/model.pth",
-        tokenizer_file="XTTS-v2/vocab.json",
+        
+        num_chars=255,
+        gpt_layers=30,
+        gpt_n_model_channels=1024,
+        gpt_n_heads=16,
+        
+        gpt_max_audio_tokens=605,
+        gpt_max_text_tokens=402,
+        gpt_max_prompt_tokens=70,
+        gpt_number_text_tokens=7544,
         gpt_num_audio_tokens=1026,
         gpt_start_audio_token=1024,
         gpt_stop_audio_token=1025,
+        gpt_code_stride_len=1024,
+        
         gpt_use_masking_gt_prompt_approach=True,
         gpt_use_perceiver_resampler=True,
+        
+        mel_norm_file=MEL_NORM_FILE,
+        dvae_checkpoint=DVAE_CHECKPOINT,
+        xtts_checkpoint=XTTS_CHECKPOINT,
+        tokenizer_file=TOKENIZER_FILE,
+        
+        input_sample_rate=22050,
+        output_sample_rate=24000,
+        output_hop_length=256,
+        decoder_input_dim=1024,
+        d_vector_dim=512,
+        cond_d_vector_in_each_upsampling_layer=True,
+        duration_const=102400
     )
+
+    
     config = GPTTrainerConfig(
         audio=audio_config,
         model_args=model_args,
-        batch_size = 4,
-        num_loader_workers=8,
+        batch_size = 3,
+        num_loader_workers=12,
     )
 
-    dataset_en = BaseDatasetConfig(
-        formatter="ljspeech",
-        dataset_name="ljspeech",
-        path=os.path.join(os.path.dirname(os.path.abspath(__file__)), "LJSpeech-1.1"),
-        meta_file_train=os.path.join(os.path.dirname(os.path.abspath(__file__)), "LJSpeech-1.1/metadata.csv"),
-        language="en",
-    )
-    dataset_config = [dataset_en]
+    dataset_vivoice = BaseDatasetConfig(
+    formatter="vivoice",
+    dataset_name="vivoice",
+    path="/data/thucth/voice/viVoice_restructured/",
+    meta_file_train="/data/thucth/voice/viVoice_restructured/metadata.csv",
+    language="vi",
+)
+    
+    dataset_config = [dataset_vivoice]
 
     gpt_decode = GPTDecoder(config, dataset_config)
-    gpt_decode.generate(output_dir="Ljspeech_latents")
+    gpt_decode.generate(output_dir="/data/thucth/voice/viVoice_latents")
